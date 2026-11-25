@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Métodos Numéricos – Raíces de Ecuaciones</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.min.js"></script>
+<script>window.MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']]},svg:{fontCache:'global'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--panel:#f8f9fd;--tx:#182033;--mu:#68738a;--ac:#6257e8;--ac2:#eeecff;--bd:#e4e8f1;--ok:#087f5b;--er:#c0394b;--warn:#d97706;color-scheme:light}
+:root[data-theme=dark]{--bg:#0b1020;--card:#141b2d;--panel:#101729;--tx:#edf1ff;--mu:#a2adc4;--ac:#9a91ff;--ac2:#29264d;--bd:#28334b;--ok:#56d6a5;--er:#ff7b8c;--warn:#fbbf24;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 system-ui,sans-serif}
+main{max-width:1300px;margin:0 auto;padding:26px 22px 50px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.top h1{margin:0;font-size:1.6rem}.top p{margin:0;color:var(--mu);font-size:.88rem}
+button,input,select{font:inherit}
+.theme,.btn-sec{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;padding:8px 12px;cursor:pointer}
+.app{display:grid;grid-template-columns:260px minmax(0,1fr);gap:22px;align-items:start}
+nav{position:sticky;top:14px;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:4px}
+nav button{display:flex;gap:10px;align-items:center;text-align:left;border:0;background:0;color:var(--mu);padding:9px;border-radius:10px;cursor:pointer}
+nav button span{width:26px;height:26px;display:grid;place-items:center;font:700 .7rem monospace;background:var(--panel);border:1px solid var(--bd);border-radius:8px}
+nav button.on{background:var(--ac2);color:var(--tx);font-weight:700}nav button.on span{background:var(--ac);color:#fff}
+.head{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px}.num{background:var(--ac);color:#fff;border-radius:9px;padding:6px 10px;font:800 .8rem monospace}
+.head h2{margin:0}.info{color:var(--mu);margin:3px 0 0;font-size:.9rem}
+h3{font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:var(--mu);margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:18px;margin-bottom:15px;min-width:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px}.wide{grid-column:1/-1}
+label{display:block;font-size:.76rem;color:var(--mu);margin-bottom:5px;font-weight:700}
+input,select{width:100%;padding:10px;border:1px solid var(--bd);border-radius:9px;background:var(--panel);color:var(--tx);font-family:monospace}
+.poly-preview{margin-top:7px;padding:8px 11px;border:1px dashed var(--bd);border-radius:9px;font-family:monospace}.poly-preview span{color:var(--ac);font-weight:700}
+.actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:16px}.hint{color:var(--mu);font-size:.77rem}
+.btn{background:var(--ac);color:#fff;border:0;padding:10px 22px;border-radius:10px;font-weight:700;cursor:pointer}
+.section-title{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin:20px 0 10px}.section-title h3{margin:0}
+.export-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.75rem;color:var(--mu)}
+.res{font-family:monospace;font-size:.85rem;word-break:break-word;background:var(--panel);border:1px solid var(--bd);border-radius:12px;padding:13px 15px;margin-bottom:13px}
+.res.main{border-left:4px solid var(--ac)}.res .k{font:700 .68rem system-ui;text-transform:uppercase;color:var(--mu);margin-top:10px}.res .k:first-child{margin-top:0}.res .v{font-size:1.25rem;font-weight:800}
+.err{color:var(--er);font-weight:650}.ok{color:var(--ok);font-weight:700}.warn{color:var(--warn)}
+.empty{border:1px dashed var(--bd);border-radius:14px;color:var(--mu);text-align:center;padding:30px}
+.sc{overflow:auto;border:1px solid var(--bd);border-radius:10px;max-height:420px}
+table{border-collapse:collapse;width:100%;font:.78rem monospace}th,td{padding:8px 11px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--bd)}th{position:sticky;top:0;background:var(--panel);color:var(--mu)}
+.st{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;gap:11px}
+.st li{counter-increment:s;position:relative;padding:13px 15px 13px 52px;background:var(--panel);border:1px solid var(--bd);border-radius:12px}
+.st li::before{content:counter(s);position:absolute;left:13px;top:13px;width:27px;height:27px;border-radius:8px;background:var(--ac);color:#fff;font:800 .8rem monospace;display:grid;place-items:center}
+.st-title{display:block;font-weight:750}.st-desc{color:var(--mu);font-size:.88rem;margin:3px 0 0}
+.formula{display:block;margin-top:8px;padding:8px 12px;font:.86rem monospace;overflow-x:auto;border-left:3px solid var(--ac);background:var(--card);border-radius:8px;color:var(--ac)}
+.math-sheet{background:var(--panel);border:1px solid var(--bd);border-radius:14px;padding:20px;line-height:1.9;overflow-x:auto}
+.math-sheet-title{text-align:center;font-weight:800;font-style:italic;text-decoration:underline;font-size:1.1rem;margin-bottom:12px}
+.math-init{text-align:center;margin-bottom:16px}
+.math-iter-block{margin-bottom:18px;padding-bottom:14px;border-bottom:1px dashed var(--bd)}.math-iter-block:last-child{border:0}
+.math-iter-head{font-weight:800;font-style:italic;text-decoration:underline;margin-bottom:8px}.math-line{margin:7px 0}
+.math-frac{display:inline-flex;align-items:center;gap:6px;vertical-align:middle}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.15}
+.frac .num-f{padding:0 5px 3px;border-bottom:1.5px solid var(--tx)}.frac .den-f{padding:3px 5px 0}
+.calc-grid{display:grid;gap:7px;margin-top:7px;font:.81rem monospace}.calc-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;padding:6px 10px;background:var(--card);border:1px solid var(--bd);border-radius:8px}
+.calc-res{padding:7px 10px;background:var(--ac2);border:1px solid var(--ac);border-radius:8px;font-weight:700}
+.plot-bar{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;margin-bottom:9px;font-size:.78rem;color:var(--mu)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+.plot-wrap{border:1px solid var(--bd);border-radius:12px;overflow:hidden}canvas{display:block;width:100%;height:330px}
+.hide{display:none!important}
+@media(max-width:900px){.app{grid-template-columns:1fr}nav{position:static;flex-direction:row;overflow-x:auto}nav button{white-space:nowrap}}
+</style></head><body><main>
+<header class="top"><div><h1>∑ Métodos Numéricos</h1><p>Laboratorio interactivo de raíces de ecuaciones</p></div><button class="theme" id="theme" type="button">☾ Tema oscuro</button></header>
+<div class="app"><nav id="tabs"></nav><section>
+<div class="head"><span class="num" id="num"></span><div><h2 id="ttl"></h2><p class="info" id="info"></p></div></div>
+<div class="card"><h3>Configuración del cálculo</h3><div class="grid">
+<div data-for="2 3 4 5 6 7" class="wide"><label>f(x)</label><input id="f" value="x^3 - 2*x - 5"></div>
+<div data-for="1" class="wide"><label>Coeficientes (mayor a menor grado, separados por espacio o coma)</label><input id="poly" value="1 -6 11 -6"><div class="poly-preview" id="polyPrev"></div></div>
+<div data-for="2 5 6 7"><label>a (extremo izq.)</label><input id="a" value="2"></div>
+<div data-for="2 5 6 7"><label>b (extremo der.)</label><input id="b" value="3"></div>
+<div data-for="3 4 5"><label>x0</label><input id="x0" value="2"></div>
+<div data-for="4 5"><label>x1</label><input id="x1" value="3"></div>
+<div data-for="7"><label>Subdivisiones del barrido</label><input id="n" value="2000"></div>
+<div><label>Ejemplos rápidos</label><select id="pre"></select></div>
+<div><label>Tolerancia</label><input id="tol" value="1e-30"></div>
+<div><label>Máx. iteraciones</label><input id="max" value="100"></div>
+<div><label>Dígitos de precisión</label><input id="digits" value="50"></div>
+<div><label>Pasos detallados</label><select id="detailLimit"><option value="5">Primeros 5</option><option value="15">Primeros 15</option><option value="9999">Todos</option></select></div>
+</div><div class="actions"><button class="btn" id="go">Calcular</button><span class="hint">Funciones: sin, cos, tan, exp, log (ln), sqrt, abs, pi, e · potencia con ^</span></div></div>
+<div class="section-title"><h3>Resultados</h3><div class="export-bar"><span id="status">Esperando cálculo</span>
+<button class="btn-sec hide" id="btnCopy">Copiar tabla</button><button class="btn-sec hide" id="btnCsv">CSV</button><button class="btn-sec hide" id="btnTxt">TXT</button></div></div>
+<div id="out"></div></section></div></main>
+<script>
+const M=math.create(math.all,{number:'BigNumber',precision:50}),$=id=>document.getElementById(id),D=M.bignumber;
+const NAMES=['Ecuaciones algebraicas','Bisección','Newton-Raphson','Secante','Convergencia y precisión','Ecuaciones trascendentales','Múltiples soluciones'];
+const INFO=['Halla todas las raíces (reales y complejas) con Durand-Kerner y pule las reales con Newton en alta precisión.',
+'Requiere f(a)·f(b)<0. Convergencia lineal garantizada: el error se reduce a la mitad en cada paso.',
+'Usa f y su derivada simbólica. Convergencia cuadrática cerca de una raíz simple.',
+'Newton sin derivada. Orden de convergencia ≈ 1.618 (razón áurea).',
+'Compara Bisección, Newton y Secante con la misma f: errores y orden de convergencia.',
+'Método híbrido (Newton protegido por bisección) en [a,b]. Ideal para ecuaciones trascendentales.',
+'Barre [a,b], detecta cambios de signo y raíces múltiples (estimando su multiplicidad m) y refina cada una.'];
+const PRESETS={
+1:[['Cúbica con 3 raíces reales','1 -6 11 -6'],['Raíces complejas (x² + 4)','1 0 4'],['Grado 4 (reales y complejas)','1 -2 3 -2 2'],['Raíz doble en x = 2','1 -3 0 4'],['Raíces de la unidad (x³ - 1)','1 0 0 -1']],
+2:[['x³ - 2x - 5 en [2, 3]','x^3 - 2*x - 5',2,3,2,3],['cos(x) - x en [0, 1]','cos(x) - x',0,1,.5,1],['eˣ - 3x en [0, 1]','exp(x) - 3*x',0,1,.5,1]],
+3:[['x³ - 2x - 5 desde x₀ = 2','x^3 - 2*x - 5',2,3,2,3],['cos(x) - x desde x₀ = 0.5','cos(x) - x',0,1,.5,1],['Ciclo: x³ - 2x + 2 desde x₀ = 0','x^3 - 2*x + 2',-2,0,0,-1]],
+4:[['x³ - 2x - 5 (x₀=2, x₁=3)','x^3 - 2*x - 5',2,3,2,3],['e⁻ˣ - x (x₀=0, x₁=1)','exp(-x) - x',0,1,0,1]],
+5:[['x³ - 2x - 5','x^3 - 2*x - 5',2,3,2,3],['cos(x) - x','cos(x) - x',0,1,.5,1],['eˣ - 3x','exp(x) - 3*x',0,1,.5,1]],
+6:[['cos(x) - x en [0, 1]','cos(x) - x',0,1,.5,1],['eˣ - 3x en [0, 1]','exp(x) - 3*x',0,1,.5,1],['x·ln(x) - 1 en [1, 3]','x*log(x) - 1',1,3,2,2.5],['e⁻ˣ - x en [0, 1]','exp(-x) - x',0,1,.5,1]],
+7:[['sin(x) - x/10 en [-10, 10]','sin(x) - x/10',-10,10,1,2],['(x-1)²(x+2) en [-3, 3]','(x-1)^2*(x+2)',-3,3,2,2.5],['(x-1)³(x+1) en [-2, 2]','(x-1)^3*(x+1)',-2,2,0,1],['cos(x) en [0, 10]','cos(x)',0,10,1,2]]};
+const STEPS=[
+[{t:'Normalizar',d:'Se divide entre el coeficiente principal para obtener un polinomio mónico.',f:'P(x) = xⁿ + a₁xⁿ⁻¹ + … + aₙ'},
+{t:'Aproximaciones iniciales',d:'Se reparten n complejos distintos sobre una circunferencia de radio dado por la cota de Cauchy.'},
+{t:'Iteración de Durand-Kerner',d:'Las n raíces se actualizan simultáneamente:',f:'zᵢ ← zᵢ − P(zᵢ) / ∏_{j≠i} (zᵢ − zⱼ)'},
+{t:'Criterio de parada',d:'Se detiene con desplazamiento máximo < 10⁻¹³. En raíces múltiples la convergencia es lineal y se acepta si se estanca por debajo de 10⁻⁶.'},
+{t:'Clasificación',d:'Si la parte imaginaria es despreciable la raíz es real; si no, es compleja y aparece con su conjugada.'},
+{t:'Pulido en alta precisión',d:'Cada raíz real se refina con Newton y Horner hasta |Δx| < tolerancia:',f:'x ← x − P(x) / P′(x)'},
+{t:'Verificación',d:'Se evalúa |P(raíz)|; un residuo grande indica raíz múltiple o mal condicionada.'}],
+[{t:'Comprobar el intervalo',d:'Por Bolzano, debe haber cambio de signo en [a, b]:',f:'f(a) · f(b) < 0'},
+{t:'Punto medio',d:'Se divide el intervalo a la mitad y se evalúa f:',f:'c = (a + b) / 2'},
+{t:'Nuevo subintervalo',d:'Si f(c) tiene el signo de f(a), a ← c; si no, b ← c.'},
+{t:'Cota del error',d:'Tras n pasos:',f:'|c − r| ≤ (b − a) / 2ⁿ⁺¹'},
+{t:'Parada',d:'Se repite hasta (b − a)/2 < tolerancia o f(c) = 0. Pasos teóricos: n ≥ log₂((b − a)/tol).'}],
+[{t:'Aproximación y derivada',d:'Se parte de x₀ cercano a la raíz y se obtiene f′(x) simbólicamente.'},
+{t:'Interpretación geométrica',d:'Se traza la tangente en (xₙ, f(xₙ)) y se toma su corte con el eje x.'},
+{t:'Recurrencia',d:'',f:'xₙ₊₁ = xₙ − f(xₙ) / f′(xₙ)'},
+{t:'Derivada nula',d:'Si f′(xₙ) = 0 la tangente es horizontal y hay que elegir otro x₀.'},
+{t:'Parada y orden',d:'Se detiene con |xₙ₊₁ − xₙ| < tolerancia. En raíces simples el orden es p = 2.'}],
+[{t:'Dos aproximaciones',d:'Se eligen x₀ y x₁ cercanos a la raíz (no necesitan encerrarla).'},
+{t:'Derivada aproximada',d:'f′ se sustituye por la pendiente de la secante:',f:'f′(xₙ) ≈ (f(xₙ) − f(xₙ₋₁)) / (xₙ − xₙ₋₁)'},
+{t:'Fórmula iterativa',d:'',f:'xₙ₊₁ = xₙ − f(xₙ)·(xₙ − xₙ₋₁) / (f(xₙ) − f(xₙ₋₁))'},
+{t:'Desplazamiento y parada',d:'Se actualiza x₀ ← x₁, x₁ ← x₂ hasta |Δx| < tolerancia. Orden p ≈ 1.618.'}],
+[{t:'Ejecución simultánea',d:'Se ejecutan Bisección, Newton-Raphson y Secante con la misma función y parámetros.'},
+{t:'Raíz de referencia',d:'Se toma la mejor aproximación (habitualmente Newton) como r.'},
+{t:'Error logarítmico',d:'Con eₙ = |xₙ − r|, el valor −log₁₀(eₙ) indica las cifras exactas.'},
+{t:'Orden p',d:'Con dₙ = |xₙ₊₁ − xₙ|:',f:'p ≈ ln(dₙ / dₙ₋₁) / ln(dₙ₋₁ / dₙ₋₂)'}],
+[{t:'Planteamiento',d:'Las ecuaciones con sin, cos, exp o log no suelen admitir despeje algebraico.'},
+{t:'Acotación',d:'Se verifica f(a)·f(b) < 0 para que la raíz permanezca en [lo, hi].'},
+{t:'Newton protegido',d:'Si x − f/f′ cae fuera de (lo, hi) se descarta y se usa bisección:',f:'x_nuevo = (lo + hi) / 2'},
+{t:'Parada',d:'Termina con |Δx| < tolerancia o ancho del intervalo < tolerancia.'}],
+[{t:'Partición',d:'Se divide [a, b] en N subintervalos de longitud h = (b − a)/N y se evalúa f en cada nodo.'},
+{t:'Cambios de signo',d:'Donde f(xᵢ)·f(xᵢ₊₁) < 0 se aísla la raíz con el método híbrido y se estima su multiplicidad m.'},
+{t:'Raíces múltiples',d:'La multiplicidad es el menor k con f⁽ᵏ⁾(r) ≠ 0. Si m > 1 se refina con Newton modificado (también si f′ cambia de signo con |f| ≈ 0):',f:'xₙ₊₁ = xₙ − m · f(xₙ) / f′(xₙ)'},
+{t:'Filtrado',d:'Se eliminan duplicados dentro de la tolerancia y se ordenan de menor a mayor.'}]];
+
+const fracHtml=(n,d)=>`<span class="frac"><span class="num-f">$${n}$</span><span class="den-f">$${d}$</span></span>`;
+const dg=()=>Math.min(120,Math.max(10,+$('digits').value||50)),limSteps=()=>+$('detailLimit').value||5;
+function fmtNum(v,n=8){if(v.isZero())return'0';let s;if(v.abs().lt('1e-6'))s=v.toExponential(4);else{s=v.toSignificantDigits(Math.min(dg(),n)).toString();if(s.includes('e'))s=v.toFixed(n)}return s.replace(/e\+?(-?\d+)/,'\\times 10^{$1}')}
+const sd=(x,n=20)=>x.isZero()?'0':x.toSignificantDigits(Math.min(dg(),n)).toString(),ex=x=>x.isZero()?'0':x.toExponential(3);
+const typesetMath=()=>{if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([$('out')]).catch(()=>{})};
+const stepBox=(t,it,calc)=>`<div class="card"><h3>${t}</h3><ol class="st">${it.map(s=>calc?`<li>${s}</li>`:`<li><span class="st-title">${s.t}</span>${s.d?`<p class="st-desc">${s.d}</p>`:''}${s.f?`<div class="formula">${s.f}</div>`:''}</li>`).join('')}</ol></div>`;
+const table=(h,r)=>`<div class="sc"><table><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${r.map(x=>`<tr>${x.map(y=>`<td>${y}</td>`).join('')}</tr>`).join('')}</table></div>`;
+const result=(root,f,extra)=>`<div class="res main"><div class="k">Raíz aproximada</div><div class="v">${root.toString()}</div><div class="k">Residuo f(x)</div><div>${ex(f(root))}</div>${extra?`<div class="k">Detalle</div><div>${extra}</div>`:''}</div>`;
+
+let tab=2,lastExport={headers:[],rows:[],summary:''};
+const EMPTY='<div class="empty"><strong>Tu espacio de resultados está listo</strong><br>Ajusta los datos y pulsa «Calcular».</div>';
+const themeBtn=$('theme');
+function setTheme(m){document.documentElement.dataset.theme=m;themeBtn.textContent=m==='dark'?'☀ Tema claro':'☾ Tema oscuro';if(window._lp)drawPlot(...window._lp)}
+let saved=null;try{saved=localStorage.getItem('metodos-theme')}catch(e){}
+setTheme(saved||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+themeBtn.onclick=()=>{const n=document.documentElement.dataset.theme==='dark'?'light':'dark';setTheme(n);try{localStorage.setItem('metodos-theme',n)}catch(e){}};
+
+function updatePolyPreview(){
+ const cs=$('poly').value.trim().split(/[\s,;]+/).map(Number);
+ if(cs.some(v=>!Number.isFinite(v))){$('polyPrev').innerHTML='<span class="err">Coeficientes inválidos</span>';return}
+ while(cs.length>1&&cs[0]===0)cs.shift();const deg=cs.length-1,sup=n=>String(n).split('').map(d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[d]).join(''),p=[];
+ cs.forEach((c,i)=>{const e=deg-i;if(c===0&&deg>0)return;const ab=Math.abs(c);p.push(`${c<0?' - ':(p.length?' + ':'')}${ab===1&&e>0?'':ab}${e===0?'':e===1?'x':'x'+sup(e)}`)});
+ $('polyPrev').innerHTML=`P(x) = <span>${p.join('')||'0'}</span> (grado ${deg})`}
+$('poly').oninput=updatePolyPreview;updatePolyPreview();
+
+$('pre').onchange=()=>{const i=+$('pre').value;if(i<0)return;const p=PRESETS[tab][i];
+ if(tab===1){$('poly').value=p[1];updatePolyPreview();return}
+ $('f').value=p[1];$('a').value=p[2];$('b').value=p[3];$('x0').value=p[4];$('x1').value=p[5]};
+$('tabs').innerHTML=NAMES.map((n,i)=>`<button data-t="${i+1}"><span>0${i+1}</span>${n}</button>`).join('');
+function show(){
+ document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',+b.dataset.t===tab));
+ document.querySelectorAll('[data-for]').forEach(d=>d.classList.toggle('hide',!d.dataset.for.split(' ').includes(''+tab)));
+ $('info').textContent=INFO[tab-1];$('ttl').textContent=NAMES[tab-1];$('num').textContent='0'+tab;
+ $('out').innerHTML=EMPTY;$('status').textContent='Esperando cálculo';['btnCopy','btnCsv','btnTxt'].forEach(i=>$(i).classList.add('hide'));window._lp=null;
+ $('pre').innerHTML='<option value="-1">Selecciona un ejemplo...</option>'+PRESETS[tab].map((p,i)=>`<option value="${i}">${p[0]}</option>`).join('')}
+$('tabs').onclick=e=>{const b=e.target.closest('button[data-t]');if(b){tab=+b.dataset.t;show()}};show();
+
+const num=id=>M.evaluate($(id).value.trim());
+const fx=s=>{const c=M.compile(s);return x=>{const v=c.evaluate({x});if(!v||typeof v.isFinite!=='function'||!v.isFinite())throw new Error('f(x) no es finita en x = '+x.toString());return v}};
+const dfx=s=>fx(M.derivative(s,'x').toString());
+
+function ordenes(st){const p=[null,null];for(let i=2;i<st.length;i++){try{if(st[i].isZero()||st[i-1].isZero()||st[i-2].isZero()){p.push(null);continue}
+ const v=Number(st[i].div(st[i-1]).ln())/Number(st[i-1].div(st[i-2]).ln());p.push(isFinite(v)?v:null)}catch(e){p.push(null)}}return p}
+const fp=p=>p==null?'—':p.toFixed(3),steps=xs=>xs.slice(1).map((x,i)=>x.minus(xs[i]).abs());
+
+function drawPlot(fn,xMin,xMax,roots=[],pts=[]){
+ window._lp=[fn,xMin,xMax,roots,pts];const c=$('plotCanvas');if(!c)return;
+ const dpr=devicePixelRatio||1,W=Math.max(300,c.getBoundingClientRect().width||760),H=330;c.width=W*dpr;c.height=H*dpr;
+ const ctx=c.getContext('2d');ctx.scale(dpr,dpr);const dk=document.documentElement.dataset.theme==='dark';
+ const bg=dk?'#101729':'#f8f9fd',gr=dk?'#1f2942':'#e4e8f1',ax=dk?'#4c5b7c':'#9aa5bd',cu=dk?'#9a91ff':'#6257e8',rt=dk?'#56d6a5':'#087f5b',it=dk?'#fbbf24':'#d97706',tx=dk?'#a2adc4':'#68738a';
+ ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ if(!Number.isFinite(xMin)||!Number.isFinite(xMax)||xMin>=xMax){xMin=-5;xMax=5}
+ const pad=(xMax-xMin)*.12||1,a=xMin-pad,b=xMax+pad,S=450,P=[];let y0=Infinity,y1=-Infinity;
+ for(let i=0;i<=S;i++){const x=a+(b-a)*i/S;let y=NaN;try{y=fn(x)}catch(e){}if(Number.isFinite(y)&&Math.abs(y)<1e6){P.push([x,y]);y0=Math.min(y0,y);y1=Math.max(y1,y)}else P.push([x,NaN])}
+ if(!Number.isFinite(y0)){y0=-5;y1=5}if(y0===y1){y0--;y1++}y0=Math.min(y0,0);y1=Math.max(y1,0);const yp=(y1-y0)*.15||1;y0-=yp;y1+=yp;
+ const mL=54,mR=20,mT=18,mB=32,pW=W-mL-mR,pH=H-mT-mB,X=x=>mL+(x-a)/(b-a)*pW,Y=y=>mT+pH-(y-y0)/(y1-y0)*pH;
+ ctx.strokeStyle=gr;ctx.lineWidth=1;ctx.font='11px monospace';ctx.fillStyle=tx;
+ for(let i=0;i<=6;i++){const g=mL+pW*i/6;ctx.beginPath();ctx.moveTo(g,mT);ctx.lineTo(g,mT+pH);ctx.stroke();ctx.textAlign='center';ctx.fillText((a+(b-a)*i/6).toPrecision(3),g,H-10)}
+ for(let i=0;i<=5;i++){const g=mT+pH*i/5;ctx.beginPath();ctx.moveTo(mL,g);ctx.lineTo(mL+pW,g);ctx.stroke();ctx.textAlign='right';ctx.fillText((y1-(y1-y0)*i/5).toPrecision(3),mL-6,g+4)}
+ ctx.strokeStyle=ax;ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(mL,Y(0));ctx.lineTo(mL+pW,Y(0));ctx.stroke();
+ if(a<=0&&b>=0){ctx.beginPath();ctx.moveTo(X(0),mT);ctx.lineTo(X(0),mT+pH);ctx.stroke()}
+ ctx.save();ctx.beginPath();ctx.rect(mL,mT,pW,pH);ctx.clip();ctx.strokeStyle=cu;ctx.lineWidth=2.4;ctx.beginPath();let st=false;
+ for(const[x,y]of P){if(!Number.isFinite(y)){st=false;continue}st?ctx.lineTo(X(x),Y(y)):ctx.moveTo(X(x),Y(y));st=true}ctx.stroke();
+ pts.forEach(x=>{if(!Number.isFinite(x)||x<a||x>b)return;let y=NaN;try{y=fn(x)}catch(e){}if(!Number.isFinite(y))return;ctx.fillStyle=it;ctx.beginPath();ctx.arc(X(x),Y(y),3.5,0,7);ctx.fill()});
+ roots.forEach(r=>{if(!Number.isFinite(r))return;ctx.fillStyle=rt;ctx.beginPath();ctx.arc(X(r),Y(0),6,0,7);ctx.fill();ctx.strokeStyle=bg;ctx.lineWidth=2;ctx.stroke()});ctx.restore();
+ c.onmousemove=ev=>{const mx=ev.clientX-c.getBoundingClientRect().left;if(mx<mL||mx>mL+pW)return;const xv=a+(mx-mL)/pW*(b-a);let yv=NaN;try{yv=fn(xv)}catch(e){}
+  $('plotCoord').textContent=Number.isFinite(yv)?`x = ${xv.toFixed(5)} · f(x) = ${yv.toFixed(5)}`:`x = ${xv.toFixed(5)}`}}
+const plotCard=it=>`<div class="card"><div class="plot-bar"><span><i class="dot" style="background:var(--ac)"></i>f(x) &nbsp;<i class="dot" style="background:var(--ok)"></i>Raíz ${it?'&nbsp;<i class="dot" style="background:var(--warn)"></i>Iteraciones':''}</span><span id="plotCoord">Mueve el cursor sobre la gráfica</span></div><div class="plot-wrap"><canvas id="plotCanvas"></canvas></div></div>`;
+
+function bisect(f,a,b,tol,max){
+ let fa=f(a),fb=f(b);if(a.gte(b))throw new Error('El intervalo debe cumplir a < b.');
+ if(fa.isZero())return{rows:[[0,sd(a),sd(b),sd(a),'0','0']],xs:[a],root:a,det:['<b>Raíz en el extremo izquierdo:</b> f(a) = 0.']};
+ if(fb.isZero())return{rows:[[0,sd(a),sd(b),sd(b),'0','0']],xs:[b],root:b,det:['<b>Raíz en el extremo derecho:</b> f(b) = 0.']};
+ if(fa.times(fb).gt(0))throw new Error('f(a) y f(b) tienen el mismo signo: no hay garantía de raíz en [a,b].');
+ const rows=[],xs=[],det=[],L=limSteps();let c=a;
+ for(let n=1;n<=max;n++){
+  c=a.plus(b).div(2);const fc=f(c),e=b.minus(a).div(2);rows.push([n,sd(a),sd(b),sd(c),ex(fc),ex(e)]);xs.push(c);
+  if(n<=L){const A=fmtNum(a),B=fmtNum(b),C=fmtNum(c),FA=fmtNum(fa),FB=fmtNum(fb),FC=fmtNum(fc),same=fc.isNeg()===fa.isNeg();
+   det.push(`<div class="math-iter-block"><div class="math-iter-head">Iteración ${n}:</div><div class="math-line">$a_{${n}} = ${A}; \\quad f(${A}) = ${FA}$</div><div class="math-line">$b_{${n}} = ${B}; \\quad f(${B}) = ${FB}$</div><div class="math-line"><span class="math-frac">$x_{${n}} =$${fracHtml(`a_{${n}} + b_{${n}}`,'2')}$=$${fracHtml(`${A} + ${B}`,'2')}$= ${C}$</span></div><div class="math-line">$f(${C}) = ${FC}$ &nbsp;→&nbsp; ${fc.isZero()?'Raíz exacta':same?`Siguiente: $a_{${n+1}} = ${C}$`:`Siguiente: $b_{${n+1}} = ${C}$`}</div></div>`)}
+  if(fc.isZero()||e.lt(tol))break;
+  if(fc.isNeg()===fa.isNeg()){a=c;fa=fc}else{b=c;fb=fc}}
+ return{rows,xs,root:c,det}}
+
+function newton(f,df,x,tol,max){
+ const rows=[],xs=[x],det=[],L=limSteps();
+ for(let n=1;n<=max;n++){
+  const fv=f(x),d=df(x);if(d.isZero())throw new Error("f'(x)=0 en la iteración "+n+'. Cambia x0.');
+  const xn=x.minus(fv.div(d)),e=xn.minus(x).abs();
+  if(n<=L){const X=fmtNum(x),FV=fmtNum(fv),DV=fmtNum(d),XN=fmtNum(xn),FN=fmtNum(f(xn));
+   det.push(`<div class="math-iter-block"><div class="math-iter-head">Iteración ${n}:</div><div class="math-line">$x_{${n-1}} = ${X}; \\quad f(${X}) = ${FV}; \\quad f'(${X}) = ${DV}$</div><div class="math-line"><span class="math-frac">$x_{${n}} = x_{${n-1}} -$${fracHtml(`f(x_{${n-1}})`,`f'(x_{${n-1}})`)}$=$${fracHtml(FV,DV)}$= ${XN}$</span></div><div class="math-line">$f(${XN}) = ${FN}$</div></div>`)}
+  xs.push(xn);rows.push([n,sd(xn),ex(f(xn)),ex(e)]);x=xn;if(e.lt(tol))break}
+ return{rows,xs,root:x,det}}
+
+function secant(f,x0,x1,tol,max){
+ const rows=[],xs=[x0,x1],det=[],L=limSteps();let f0=f(x0),f1=f(x1);
+ for(let n=1;n<=max;n++){
+  const den=f1.minus(f0);if(den.isZero())throw new Error('La secante no puede continuar: f(x₀) = f(x₁). Cambia las aproximaciones iniciales.');
+  const x2=x1.minus(f1.times(x1.minus(x0)).div(den)),e=x2.minus(x1).abs();
+  if(n<=L){const A=fmtNum(x0),B=fmtNum(x1),FA=fmtNum(f0),FB=fmtNum(f1),C=fmtNum(x2),FC=fmtNum(f(x2));
+   det.push(`<div class="math-iter-block"><div class="math-iter-head">Iteración ${n}:</div><div class="math-line">$x_{${n-1}} = ${A}; \\quad f(${A}) = ${FA}$</div><div class="math-line">$x_{${n}} = ${B}; \\quad f(${B}) = ${FB}$</div><div class="math-line"><span class="math-frac">$x_{${n+1}} = x_{${n}} -$${fracHtml(`f(x_{${n}})(x_{${n}} - x_{${n-1}})`,`f(x_{${n}}) - f(x_{${n-1}})`)}$= ${C}$</span></div><div class="math-line">$f(${C}) = ${FC}$</div></div>`)}
+  x0=x1;f0=f1;x1=x2;f1=f(x1);xs.push(x1);rows.push([n,sd(x1),ex(f1),ex(e)]);if(e.lt(tol)||f1.isZero())break}
+ return{rows,xs,root:x1,det}}
+
+function hybrid(f,df,lo,hi,tol,max,log){
+ let flo=f(lo),fhi=f(hi);if(flo.isZero())return lo;if(fhi.isZero())return hi;
+ if(flo.times(fhi).gt(0))throw new Error('Sin cambio de signo en el intervalo.');
+ let x=lo.plus(hi).div(2);
+ for(let n=1;n<=max;n++){const fv=f(x);if(fv.isZero())return x;
+  if(fv.isNeg()===flo.isNeg()){lo=x;flo=fv}else hi=x;
+  const d=df(x);let xn=d.isZero()?null:x.minus(fv.div(d)),m='Newton';
+  if(!xn||xn.lte(lo)||xn.gte(hi)){xn=lo.plus(hi).div(2);m='Bisección'}
+  const e=xn.minus(x).abs();if(log)log.push([n,sd(xn),ex(f(xn)),ex(e),m]);
+  x=xn;if(e.lt(tol)||hi.minus(lo).lt(tol))return x}
+ return x}
+function newtonMultiple(f,df,x,m,tol,max){const mm=D(m);
+ for(let n=1;n<=max;n++){const fv=f(x),d=df(x);if(fv.isZero()||d.isZero())break;const xn=x.minus(mm.times(fv).div(d)),e=xn.minus(x).abs();x=xn;if(e.lt(tol))break}return x}
+function estimateMultiplicity(s,c,scale){let cur=s;
+ for(let k=1;k<=6;k++){try{cur=M.derivative(cur,'x').toString();if(fx(cur)(c).abs().gt(scale.times(D('1e-3'))))return k}catch(e){return Math.max(2,k)}}return 2}
+
+function polyRoots(c){
+ const arr=c.slice();while(arr.length>1&&arr[0]===0)arr.shift();const n=arr.length-1;
+ if(n<1)throw new Error('El polinomio debe tener grado ≥ 1.');
+ if(n===1)return[[-arr[1]/arr[0],0]];
+ if(n===2){const[A,B,C]=arr,disc=B*B-4*A*C;
+  if(disc>=0){const q=-.5*(B+Math.sign(B||1)*Math.sqrt(disc));if(q===0)return[[-B/(2*A),0],[-B/(2*A),0]];return[[q/A,0],[C/q,0]]}
+  return[[-B/(2*A),Math.sqrt(-disc)/(2*Math.abs(A))],[-B/(2*A),-Math.sqrt(-disc)/(2*Math.abs(A))]]}
+ const a=arr.map(v=>v/arr[0]),R=1+Math.max(...a.slice(1).map(Math.abs));
+ if(!Number.isFinite(R))throw new Error('Revisa la magnitud de los coeficientes.');
+ let z=Array.from({length:n},(_,k)=>{const t=2*Math.PI*(k+.37)/n;return[R*Math.cos(t),R*Math.sin(t)]});
+ const mul=(p,q)=>[p[0]*q[0]-p[1]*q[1],p[0]*q[1]+p[1]*q[0]];
+ const div=(p,q)=>{const d=q[0]*q[0]+q[1]*q[1];if(d<1e-280)throw new Error('Las aproximaciones se acercaron demasiado: posibles raíces múltiples o muy cercanas.');return[(p[0]*q[0]+p[1]*q[1])/d,(p[1]*q[0]-p[0]*q[1])/d]};
+ let converged=false,mx=Infinity;
+ for(let it=0;it<3000;it++){const old=z.map(v=>v.slice()),next=[];mx=0;
+  for(let i=0;i<n;i++){let p=[1,0];for(const co of a.slice(1)){p=mul(p,old[i]);p[0]+=co}
+   let q=[1,0];for(let j=0;j<n;j++)if(j!==i)q=mul(q,[old[i][0]-old[j][0],old[i][1]-old[j][1]]);
+   const dz=div(p,q),zi=[old[i][0]-dz[0],old[i][1]-dz[1]];
+   if(!zi.every(Number.isFinite))throw new Error('No se obtuvieron raíces finitas.');next.push(zi);mx=Math.max(mx,Math.hypot(...dz))}
+  z=next;if(mx<1e-13){converged=true;break}}
+ if(!converged&&mx>1e-6)throw new Error('Durand-Kerner no convergió. Revisa los coeficientes.');
+ return z}
+
+function setExportData(headers,rows,summary){lastExport={headers,rows,summary};['btnCopy','btnCsv','btnTxt'].forEach(i=>$(i).classList.remove('hide'))}
+$('btnCopy').onclick=async()=>{try{await navigator.clipboard.writeText([lastExport.headers.join('\t'),...lastExport.rows.map(r=>r.join('\t'))].join('\n'));$('status').textContent='¡Tabla copiada!'}catch(e){$('status').textContent='No se pudo copiar'}};
+function downloadFile(c,n,m){const u=URL.createObjectURL(new Blob([c],{type:m})),a=document.createElement('a');a.href=u;a.download=n;a.click();URL.revokeObjectURL(u)}
+$('btnCsv').onclick=()=>{const e=v=>`"${String(v).replace(/"/g,'""')}"`;downloadFile([lastExport.headers.map(e).join(','),...lastExport.rows.map(r=>r.map(e).join(','))].join('\n'),`metodos_tab0${tab}.csv`,'text/csv;charset=utf-8')};
+$('btnTxt').onclick=()=>downloadFile([`MÉTODOS NUMÉRICOS - ${NAMES[tab-1].toUpperCase()}`,'='.repeat(50),lastExport.summary,'',lastExport.headers.join(' | '),'-'.repeat(50),...lastExport.rows.map(r=>r.join(' | '))].join('\n'),`metodos_tab0${tab}.txt`,'text/plain;charset=utf-8');
+
+function run(){
+ const out=$('out');
+ try{
+ const digits=dg();M.config({number:'BigNumber',precision:digits});
+ const tol=num('tol'),max=+$('max').value,L=limSteps();
+ const warn=tol.lt(D(10).pow(-digits+2))?`<div class="res warn">Aviso: la tolerancia (${tol.toString()}) es muy cercana o menor que la precisión (${digits} dígitos). Considera aumentar los dígitos.</div>`:'';
+ let h='',dt='',plotArgs=null;
+ if(tab===1){
+  const cs=$('poly').value.trim().split(/[\s,;]+/).map(Number);
+  if(!$('poly').value.trim())throw new Error('Escribe los coeficientes.');
+  if(cs.some(v=>!Number.isFinite(v)))throw new Error('Coeficientes inválidos.');
+  if(cs.every(v=>v===0))throw new Error('Todos los coeficientes son cero.');
+  while(cs[0]===0)cs.shift();if(cs.length<2)throw new Error('El grado mínimo es 1.');
+  const deg=cs.length-1,Z=polyRoots(cs),cb=cs.map(v=>D(v)),P=x=>cb.reduce((s,c)=>s.times(x).plus(c),D(0));
+  const dc=cs.slice(0,-1).map((v,i)=>D(v*(deg-i))),dP=x=>dc.reduce((s,c)=>s.times(x).plus(c),D(0));
+  let got=false;const pd=[],real=[];
+  const rows=Z.map((z,i)=>{const sc=Math.max(1,Math.hypot(...z));
+   if(Math.abs(z[1])<1e-6*sc){const rec=!got;got=true;let x=D(z[0]);
+    for(let k=0;k<200;k++){const d=dP(x);if(d.isZero())break;const px=P(x),xn=x.minus(px.div(d));
+     if(rec&&k<L)pd.push(`<span class="st-title">Refinamiento ${k+1} (Horner + Newton)</span><div class="calc-grid"><div class="calc-row"><span>x actual</span><strong>${sd(x,18)}</strong></div><div class="calc-row"><span>P(x) / P′(x)</span><strong>${ex(px)} / ${sd(d,12)}</strong></div><div class="calc-res">x nuevo = ${sd(xn,24)}</div></div>`);
+     const e=xn.minus(x).abs();x=xn;if(e.lt(tol))break}
+    real.push(Number(x));return[i+1,'real',x.toString(),ex(P(x))]}
+   return[i+1,'compleja',`${z[0].toPrecision(15)} ${z[1]<0?'-':'+'} ${Math.abs(z[1]).toPrecision(15)}i`,'(doble precisión)']});
+  const hd=['#','tipo','raíz','|P(raíz)|'];setExportData(hd,rows,`Polinomio de grado ${deg}: ${cs.join(' ')}`);
+  dt=pd.length?stepBox('Cálculo detallado: pulido de la primera raíz real',pd,true):'';
+  h=warn+`<div class="card"><p class="info">Grado ${deg}. Las raíces reales se refinan con ${digits} dígitos.</p>${table(hd,rows)}</div>`+plotCard(false);
+  plotArgs=[x=>cs.reduce((acc,c)=>acc*x+c,0),real.length?Math.min(...real):-5,real.length?Math.max(...real):5,real,[]];
+ }else if(tab>=2&&tab<=4){
+  const expr=$('f').value,f=fx(expr),fN=x=>Number(f(D(x)));let r,hd,top='';
+  if(tab===2){r=bisect(f,num('a'),num('b'),tol,max);hd=['n','a','b','c','f(c)','(b-a)/2'];
+   top=`<div class="res">Iteraciones teóricas necesarias ≈ log₂((b-a)/tol) = ${Math.ceil(Number(num('b').minus(num('a')).div(tol).log(2)))}</div>`}
+  else if(tab===3){r=newton(f,dfx(expr),num('x0'),tol,max);hd=['n','x','f(x)','|Δx|'];top=`<div class="res">f′(x) = ${M.derivative(expr,'x').toString()}</div>`}
+  else{r=secant(f,num('x0'),num('x1'),tol,max);hd=['n','x','f(x)','|Δx|']}
+  const p=ordenes(steps(r.xs)),last=steps(r.xs).slice(-1)[0];
+  const conv=r.rows.length<max||(tab===2?Math.ceil(Number(num('b').minus(num('a')).div(tol).log(2)))<=max:(last&&last.lt(tol)));
+  h=warn+result(r.root,f,`<b>Iteraciones:</b> ${r.rows.length} · ${conv?'<span class="ok">convergió</span>':'<span class="err">alcanzó el máximo</span>'}`)+top;
+  if(tab!==2){hd.push('orden p');r.rows.forEach((x,i)=>x.push(fp(p[i+1])))}
+  setExportData(hd,r.rows,`f(x) = ${expr} | Raíz ≈ ${r.root.toString()}`);
+  h+=`<div class="card">${table(hd,r.rows)}</div>`+plotCard(true);dt=stepBox('Cálculo detallado: iteraciones con los números reales',r.det,true);
+  const nx=r.xs.map(Number).filter(Number.isFinite);plotArgs=[fN,Math.min(...nx,Number(r.root)),Math.max(...nx,Number(r.root)),[Number(r.root)],nx];
+ }else if(tab===5){
+  const s=$('f').value,f=fx(s),df=dfx(s),fN=x=>Number(f(D(x))),R={};
+  const tr=(k,fn)=>{try{R[k]=fn()}catch(e){R[k]={err:e.message}}};
+  tr('Bisección',()=>bisect(f,num('a'),num('b'),tol,max));tr('Newton-Raphson',()=>newton(f,df,num('x0'),tol,max));tr('Secante',()=>secant(f,num('x0'),num('x1'),tol,max));
+  const ref=R['Newton-Raphson'].root||R['Secante'].root||R['Bisección'].root;if(!ref)throw new Error('Ningún método convergió; revisa los parámetros.');
+  const sum=Object.entries(R).map(([k,r])=>{if(r.err)return[k,'—','—','—',r.err];
+   const p=ordenes(steps(r.xs)).filter(v=>v!=null&&v>.5&&v<4),pe=p.length?p[Math.max(0,p.length-2)]:null;
+   return[k,r.rows.length,sd(r.root,Math.min(digits,30)),ex(f(r.root)),k==='Bisección'?'1 (lineal)':fp(pe)]});
+  h=warn+`<div class="card">${table(['Método','Iteraciones','Raíz','|f(raíz)|','Orden p'],sum)}</div>`;
+  const LL=Math.max(...Object.values(R).map(r=>r.xs?r.xs.length:0)),lg=(r,i)=>{if(!r.xs||!r.xs[i])return'';const e=r.xs[i].minus(ref).abs();return e.isZero()?'≤ −'+digits:Number(e.log(10)).toFixed(2)};
+  const rows=[...Array(LL)].map((_,i)=>[i,...Object.values(R).map(r=>lg(r,i))]),eh=['n','Bisección','Newton','Secante'];
+  setExportData(eh,rows,`Comparativa f(x) = ${s} | Ref ≈ ${ref.toString()}`);
+  h+=`<div class="card"><p class="info">log₁₀ del error absoluto respecto a la raíz de referencia (dígitos correctos ≈ −log₁₀ error).</p>${table(eh,rows)}</div>`+plotCard(false);
+  plotArgs=[fN,Number(num('a')),Number(num('b')),[Number(ref)],[]];
+ }else if(tab===6){
+  const s=$('f').value,f=fx(s),df=dfx(s),fN=x=>Number(f(D(x))),log=[],r=hybrid(f,df,num('a'),num('b'),tol,max,log),hd=['n','x','f(x)','|Δx|','paso'];
+  setExportData(hd,log,`f(x) = ${s} | Raíz ≈ ${r.toString()}`);
+  h=warn+result(r,f,`<b>Iteraciones:</b> ${log.length}`)+`<div class="card">${table(hd,log)}</div>`+plotCard(true);
+  dt=stepBox('Cálculo detallado: primeros pasos',log.slice(0,L).map(l=>`<span class="st-title">Paso ${l[0]} · Estrategia: ${l[4]}</span><div class="calc-grid"><div class="calc-row"><span>Aproximación x</span><strong>${l[1]}</strong></div><div class="calc-row"><span>f(x) · |Δx|</span><strong>${l[2]} · ${l[3]}</strong></div></div>`),true);
+  plotArgs=[fN,Number(num('a')),Number(num('b')),[Number(r)],log.map(l=>Number(l[1]))];
+ }else{
+  const s=$('f').value,f=fx(s),df=dfx(s),fN=x=>Number(f(D(x))),a=num('a'),b=num('b'),N=+$('n').value;
+  if(!Number.isInteger(N)||N<10||N>20000)throw new Error('Las subdivisiones deben ser un entero entre 10 y 20 000.');
+  if(a.gte(b))throw new Error('Se requiere a < b.');
+  const hh=b.minus(a).div(N),xs=[];for(let i=0;i<=N;i++)xs.push(a.plus(hh.times(i)));
+  const fv=xs.map(x=>f(x)),ivs=[],roots=[],add=(x,t,m=1)=>{if(!roots.some(r=>r[0].minus(x).abs().lt(1e-7)))roots.push([x,t,m])};
+  const maxF=fv.reduce((m,v)=>v.abs().gt(m)?v.abs():m,D(1e-30));
+  for(let i=0;i<N;i++){
+   if(fv[i].isZero())add(xs[i],'simple (exacta)',1);
+   else if(fv[i].times(fv[i+1]).isNeg()){
+    ivs.push([ivs.length+1,sd(xs[i],12),sd(xs[i+1],12),ex(fv[i]),ex(fv[i+1])]);
+    let c=hybrid(f,df,xs[i],xs[i+1],tol,max);const m=estimateMultiplicity(s,c,maxF);
+    if(m>1)c=newtonMultiple(f,df,c,m,tol,max);
+    add(c,m>1?'múltiple (cambia de signo, m impar)':'simple (cambio de signo)',m)}}
+  if(fv[N].isZero())add(xs[N],'simple (exacta)',1);
+  const dv=xs.map(x=>df(x)),tiny=D(1e-5).times(maxF);
+  for(let i=0;i<N;i++)if(dv[i].times(dv[i+1]).isNeg()){try{
+   let c=hybrid(df,x=>{const e=D(10).pow(-Math.floor(digits/3));return df(x.plus(e)).minus(df(x.minus(e))).div(e.times(2))},xs[i],xs[i+1],tol.times(1e6).lt(1)?tol.times(1e6):D(1e-12),max);
+   if(f(c).abs().lt(tiny)&&!roots.some(r=>r[0].minus(c).abs().lt(1e-5))){const m=estimateMultiplicity(s,c,maxF);c=newtonMultiple(f,df,c,m,tol,max);add(c,'múltiple (tangente al eje)',m)}}catch(e){}}
+  roots.sort((p,q)=>p[0].comparedTo(q[0]));
+  const hd=['#','raíz','multiplicidad m','|f(raíz)|','tipo'],rows=roots.map((r,i)=>[i+1,sd(r[0],Math.min(digits,40)),r[2],ex(f(r[0])),r[1]]);
+  setExportData(hd,rows,`f(x) = ${s} en [${sd(a,8)}, ${sd(b,8)}]`);
+  h=warn+`<div class="res"><b>${roots.length}</b> raíz(ces) detectadas en [${sd(a,8)}, ${sd(b,8)}]</div><div class="card">${table(hd,rows)}</div>`+plotCard(false);
+  dt=ivs.length?`<div class="card"><h3>Cálculo detallado: ${ivs.length} subintervalo(s) con cambio de signo</h3>${table(['#','x izq.','x der.','f(izq.)','f(der.)'],ivs.slice(0,60))}</div>`:'';
+  plotArgs=[fN,Number(a),Number(b),roots.map(r=>Number(r[0])),[]];
+ }
+ let dr=dt;
+ if(dt&&dt.includes('math-iter-block')){
+  let init='';
+  if(tab===2){const av=num('a'),bv=num('b'),F=fx($('f').value);init=`$f(${fmtNum(av,6)}) = ${fmtNum(F(av),8)}; \\qquad f(${fmtNum(bv,6)}) = ${fmtNum(F(bv),8)}$`}
+  else if(tab===3){const x0=num('x0');init=`$f(${fmtNum(x0,6)}) = ${fmtNum(fx($('f').value)(x0),8)}$`}
+  const blocks=dt.replace(/^<div class="card"><h3>.*?<\/h3><ol class="st"><li>/,'').replace(/<\/li><\/ol><\/div>$/,'').split('</li><li>');
+  dr=`<div class="card"><h3>Desarrollo matemático paso a paso</h3><div class="math-sheet"><div class="math-sheet-title">Solución</div>${init?`<div class="math-init">${init}</div>`:''}${blocks.join('')}</div></div>`}
+ out.innerHTML=h+stepBox('Procedimiento del método paso a paso',STEPS[tab-1])+dr;typesetMath();$('status').textContent='Cálculo completado';
+ if(plotArgs)requestAnimationFrame(()=>drawPlot(...plotArgs));
+ }catch(e){out.innerHTML=`<div class="card err">Error: ${e.message}</div>`;$('status').textContent='Error';['btnCopy','btnCsv','btnTxt'].forEach(i=>$(i).classList.add('hide'))}}
+$('go').onclick=run;addEventListener('resize',()=>{if(window._lp)drawPlot(...window._lp)});
+</script></body></html>
